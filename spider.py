@@ -241,7 +241,11 @@ def insert_to_mysql(result_file):
 
 def put_to_hdfs(result_file):
     client = Client("http://192.168.53.30:50070")
-    client.upload('/tmp', result_file)
+    if client.status('/tmp/result.csv',strict=False):
+        client.delete('/tmp/result.csv')
+        client.upload('/tmp', result_file)
+    else:
+        client.upload('/tmp', result_file)
 
 
 def load_to_hive(result_file):
