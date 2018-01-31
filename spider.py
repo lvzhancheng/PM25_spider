@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import json
-import re
 import time
 import urllib.request
 
@@ -145,9 +144,9 @@ def region_page(city_dic):
                         province_name = v
                 uptime = s.find('div', attrs=('class', 'remark')).string[3:]
                 dt = '{}-{}-{} {}:00:00'.format(uptime[0:4], uptime[5:7], uptime[8:10], uptime[12:14])
-                insertTime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-                timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
-                uptime = str(time.mktime(timeArray))
+                inserttime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                timearray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
+                uptime = str(time.mktime(timearray))
                 country = td[0].string
                 station = td[1].string
                 address = province_name + city_name + td[0].string + td[1].string
@@ -155,7 +154,8 @@ def region_page(city_dic):
                 if td[4].string.replace('μg/m³', '') == '—' or td[4].string.replace('μg/m³', '') == '':
                     PM25 = '0'
                 else:
-                    PM25 = td[4].string.replace('μg/m³', '')
+                    PM25 = td[4].string.r
+                    eplace('μg/m³', '')
                 if td[5].string.replace('μg/m³', '') == '—' or td[5].string.replace('μg/m³', '') == '' or td[
                     5].string.replace('μg/m³', '') == '-':
                     PM10 = '0'
@@ -178,7 +178,7 @@ def region_page(city_dic):
                     with open('station_coordinate', 'w') as station_lat_lng_f:
                         station_lat_lng_f.write(str(coordinate_dic))
                 rows = ','.join(
-                    (province_name, city_name, country, station, address, dt, insertTime, AQI, level, PM25, PM10,
+                    (province_name, city_name, country, station, address, dt, inserttime, AQI, level, PM25, PM10,
                      coordinate))
                 f.write(rows)
         # n = n + len(row)
@@ -241,7 +241,7 @@ def insert_to_mysql(result_file):
 
 def put_to_hdfs(result_file):
     client = Client("http://192.168.53.30:50070")
-    if client.status('/tmp/result.csv',strict=False):
+    if client.status('/tmp/result.csv', strict=False):
         client.delete('/tmp/result.csv')
         client.upload('/tmp', result_file)
     else:
